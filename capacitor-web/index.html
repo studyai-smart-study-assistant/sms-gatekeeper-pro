@@ -2,18 +2,356 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>SMS Gatekeeper Gateway</title>
     <style>
-      body { font-family: system-ui, sans-serif; background: #0b1220; color: #e2e8f0;
-        display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+      :root {
+        --bg: #070b14;
+        --panel: #0e1626;
+        --border: #1e2b42;
+        --fg: #e6edf7;
+        --muted: #8ea0bb;
+        --accent: #34d399;
+        --danger: #f87171;
+        --warn: #fbbf24;
+      }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      body {
+        margin: 0; background: var(--bg); color: var(--fg);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        padding: 20px 16px 48px; line-height: 1.5;
+      }
+      .wrap { max-width: 480px; margin: 0 auto; display: grid; gap: 16px; }
+      .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: .06em; font-size: 13px; }
+      .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+      .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
+      h2 { margin: 0; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+      label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+      input, textarea, select {
+        width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+        background: #0a1120; color: var(--fg); font-size: 15px; font-family: inherit;
+      }
+      textarea { min-height: 84px; resize: vertical; }
+      button {
+        width: 100%; padding: 13px; border-radius: 10px; border: 0; font-size: 15px; font-weight: 600;
+        background: var(--accent); color: #04120c; cursor: pointer;
+      }
+      button.secondary { background: #16233a; color: var(--fg); border: 1px solid var(--border); }
+      button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+      button.danger { background: transparent; color: var(--danger); border: 1px solid #3a2027; }
+      button[disabled] { opacity: .5; }
+      .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+      .badge.ok { color: var(--accent); border-color: #1d4b3a; background: #0c2019; }
+      .badge.bad { color: var(--danger); border-color: #4b1d24; background: #200c10; }
+      .badge.warn { color: var(--warn); border-color: #4b3c1d; background: #201a0c; }
+      .mono { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: 12px; color: var(--muted); word-break: break-all; }
+      .hint { font-size: 12px; color: var(--muted); margin: 0; }
+      .code { text-align: center; letter-spacing: .5em; font-size: 26px; font-family: ui-monospace, monospace; }
+      #toast {
+        position: fixed; left: 16px; right: 16px; bottom: 20px; padding: 12px 14px; border-radius: 10px;
+        background: #16233a; border: 1px solid var(--border); font-size: 14px; opacity: 0; transform: translateY(12px);
+        transition: .2s; pointer-events: none; z-index: 50;
+      }
+      #toast.show { opacity: 1; transform: none; }
+      .hidden { display: none !important; }
+      .log { max-height: 180px; overflow: auto; display: grid; gap: 6px; }
+      .log div { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
     </style>
   </head>
   <body>
-    <main>
-      <h1>SMS Gatekeeper Gateway</h1>
-      <p>Connecting to your Gatekeeper deployment…</p>
-      <p>Set GATEWAY_SERVER_URL in the build to load the gateway UI.</p>
-    </main>
+    <div class="wrap">
+      <div class="brand"><span class="dot"></span> SMS GATEKEEPER · GATEWAY</div>
+
+      <div class="panel" id="envPanel">
+        <h2>Server</h2>
+        <div>
+          <label for="baseUrl">Gatekeeper server URL</label>
+          <input id="baseUrl" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="https://your-app.lovable.app" />
+        </div>
+        <div class="row">
+          <span class="hint">Connection</span>
+          <span class="badge" id="healthBadge">unknown</span>
+        </div>
+        <button class="secondary" id="saveUrl">Save &amp; test connection</button>
+        <p class="hint" id="nativeHint"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Permissions</h2>
+        <div class="row">
+          <span>SEND_SMS</span>
+          <span class="badge" id="permBadge">unknown</span>
+        </div>
+        <button id="grantPerm">Grant SMS permission</button>
+        <p class="hint hidden" id="permDenied">
+          Permission is permanently denied. Open Android Settings → Apps → SMS Gatekeeper Gateway → Permissions and allow SMS.
+        </p>
+      </div>
+
+      <div class="panel" id="pairPanel">
+        <h2>Pair device</h2>
+        <div>
+          <label for="code">6-digit pairing code (Dashboard → Devices)</label>
+          <input id="code" class="code" inputmode="numeric" maxlength="6" placeholder="123456" />
+        </div>
+        <button id="pair">Pair this device</button>
+      </div>
+
+      <div class="panel hidden" id="devicePanel">
+        <h2>Gateway service</h2>
+        <div class="row">
+          <span>Status</span>
+          <span class="badge" id="runBadge">offline</span>
+        </div>
+        <p class="mono" id="deviceId"></p>
+        <button id="toggle">Start gateway service</button>
+        <button class="ghost" id="battery">Disable battery optimisation</button>
+        <button class="danger" id="unpair">Unpair this device</button>
+      </div>
+
+      <div class="panel" id="testPanel">
+        <h2>Send a test SMS</h2>
+        <p class="hint">Uses this phone directly — no API key needed. Confirms the SIM can actually send.</p>
+        <div>
+          <label for="testTo">Recipient number</label>
+          <input id="testTo" inputmode="tel" placeholder="+919876543210" />
+        </div>
+        <div>
+          <label for="testBody">Message</label>
+          <textarea id="testBody">SMS Gatekeeper test message ✅</textarea>
+        </div>
+        <button id="sendTest">Send test SMS from this phone</button>
+        <div class="log" id="testLog"></div>
+      </div>
+
+      <div class="panel" id="infoPanel"><h2>Device</h2><p class="mono" id="info">Reading device info…</p></div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+      var STORAGE_KEY = "gatekeeper.device";
+      var URL_KEY = "gatekeeper.baseUrl";
+      var DEFAULT_URL = "https://sms-gatekeeper-pro.lovable.app";
+
+      var el = function (id) { return document.getElementById(id); };
+      var toastTimer;
+      function toast(msg) {
+        var t = el("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.classList.remove("show"); }, 3200);
+      }
+      function badge(node, text, kind) {
+        node.textContent = text;
+        node.className = "badge" + (kind ? " " + kind : "");
+      }
+      function plugin() {
+        var cap = window.Capacitor;
+        return cap && cap.Plugins && cap.Plugins.SmsGateway ? cap.Plugins.SmsGateway : null;
+      }
+      function baseUrl() {
+        return (localStorage.getItem(URL_KEY) || DEFAULT_URL).replace(/\/+$/, "");
+      }
+      function logLine(text) {
+        var d = document.createElement("div");
+        d.textContent = new Date().toLocaleTimeString() + "  " + text;
+        el("testLog").prepend(d);
+      }
+
+      var state = { info: null, credential: null, permission: "unknown", running: false };
+
+      function renderCredential() {
+        if (state.credential) {
+          el("devicePanel").classList.remove("hidden");
+          el("pairPanel").classList.add("hidden");
+          el("deviceId").textContent = state.credential.gateway_device_id;
+        } else {
+          el("devicePanel").classList.add("hidden");
+          el("pairPanel").classList.remove("hidden");
+        }
+      }
+      function renderPermission() {
+        var p = state.permission;
+        badge(el("permBadge"), p, p === "granted" ? "ok" : p === "unknown" ? "" : "bad");
+        el("grantPerm").classList.toggle("hidden", p === "granted");
+        el("permDenied").classList.toggle("hidden", p !== "permanently_denied");
+      }
+      function renderRunning() {
+        badge(el("runBadge"), state.running ? "running" : "stopped", state.running ? "ok" : "warn");
+        el("toggle").textContent = state.running ? "Stop gateway service" : "Start gateway service";
+      }
+
+      async function checkHealth() {
+        badge(el("healthBadge"), "checking…", "");
+        try {
+          var res = await fetch(baseUrl() + "/api/public/v1/health", { cache: "no-store" });
+          badge(el("healthBadge"), res.ok ? "connected" : "error " + res.status, res.ok ? "ok" : "bad");
+        } catch (e) {
+          badge(el("healthBadge"), "unreachable", "bad");
+        }
+      }
+
+      async function init() {
+        el("baseUrl").value = localStorage.getItem(URL_KEY) || DEFAULT_URL;
+        try {
+          var stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) state.credential = JSON.parse(stored);
+        } catch (e) {}
+        renderCredential();
+        renderPermission();
+        renderRunning();
+        void checkHealth();
+
+        var p = plugin();
+        if (!p) {
+          el("nativeHint").textContent =
+            "Native SMS layer not detected — this screen is running in a plain browser. Install the Android APK to send SMS.";
+          el("info").textContent = "Native device info unavailable in browser.";
+          return;
+        }
+        el("nativeHint").textContent = "Native SMS layer detected.";
+        try {
+          state.permission = (await p.checkPermissions()).sms;
+          renderPermission();
+        } catch (e) {}
+        try {
+          state.info = await p.getDeviceInfo();
+          el("info").textContent =
+            state.info.model +
+            " · Android " + state.info.androidVersion +
+            " · app " + state.info.appVersion +
+            " · battery " + state.info.batteryLevel + "%" + (state.info.charging ? " (charging)" : "") +
+            " · SIM " + (state.info.simReady ? "ready" : "not ready") +
+            " · " + state.info.network;
+        } catch (e) {
+          el("info").textContent = "Could not read device info.";
+        }
+        try {
+          state.running = (await p.getGatewayState()).running;
+          renderRunning();
+        } catch (e) {}
+      }
+
+      el("saveUrl").addEventListener("click", function () {
+        var value = el("baseUrl").value.trim();
+        if (!/^https?:\/\//i.test(value)) { toast("Enter a full URL starting with https://"); return; }
+        localStorage.setItem(URL_KEY, value.replace(/\/+$/, ""));
+        toast("Server URL saved.");
+        void checkHealth();
+      });
+
+      el("grantPerm").addEventListener("click", async function () {
+        var p = plugin();
+        if (!p) { toast("Native layer unavailable."); return; }
+        try {
+          state.permission = (await p.requestPermissions()).sms;
+          renderPermission();
+        } catch (e) { toast("Permission request failed."); }
+      });
+
+      el("code").addEventListener("input", function (e) {
+        e.target.value = e.target.value.replace(/\D/g, "");
+      });
+
+      el("pair").addEventListener("click", async function () {
+        var code = el("code").value;
+        if (code.length !== 6) { toast("Enter the 6-digit pairing code."); return; }
+        var info = state.info || {};
+        el("pair").disabled = true;
+        try {
+          var res = await fetch(baseUrl() + "/api/public/v1/gateway/pair", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              pairing_code: code,
+              install_id: info.installId || "browser-" + Math.random().toString(36).slice(2, 12),
+              android_version: info.androidVersion || "unknown",
+              app_version: info.appVersion || "web",
+              device_name: info.model || "Unknown device",
+              sms_permission: state.permission,
+              sim_info: { model: info.model || null, sim_ready: !!info.simReady, network: info.network || null }
+            })
+          });
+          var payload = await res.json();
+          if (!res.ok || !payload.success) throw new Error((payload.error && payload.error.message) || "Pairing failed");
+          state.credential = { gateway_device_id: payload.gateway_device_id, device_token: payload.device_token };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.credential));
+          renderCredential();
+          toast("Device paired successfully.");
+        } catch (e) {
+          toast(e.message || "Pairing failed");
+        } finally {
+          el("pair").disabled = false;
+        }
+      });
+
+      el("toggle").addEventListener("click", async function () {
+        var p = plugin();
+        if (!p || !state.credential) { toast("Native layer unavailable."); return; }
+        try {
+          var result = state.running
+            ? await p.stopGateway()
+            : await p.startGateway({
+                baseUrl: baseUrl(),
+                deviceId: state.credential.gateway_device_id,
+                deviceToken: state.credential.device_token
+              });
+          state.running = result.running;
+          renderRunning();
+        } catch (e) { toast("Could not change service state."); }
+      });
+
+      el("battery").addEventListener("click", function () {
+        var p = plugin();
+        if (p) void p.openBatterySettings();
+      });
+
+      el("unpair").addEventListener("click", function () {
+        localStorage.removeItem(STORAGE_KEY);
+        state.credential = null;
+        renderCredential();
+        toast("Device unpaired locally.");
+      });
+
+      el("sendTest").addEventListener("click", async function () {
+        var p = plugin();
+        var to = el("testTo").value.trim();
+        var body = el("testBody").value.trim();
+        if (!to || !body) { toast("Enter a recipient and a message."); return; }
+        if (!p) { toast("Install the Android app to send a real SMS."); return; }
+        if (state.permission !== "granted") { toast("Grant SMS permission first."); return; }
+        el("sendTest").disabled = true;
+        logLine("sending → " + to);
+        try {
+          var result = await p.sendSms({
+            messageId: "test_" + Date.now().toString(36),
+            recipient: to,
+            body: body
+          });
+          if (result.status === "sent") {
+            logLine("SENT ✅ " + result.messageId);
+            toast("Test SMS handed to the SIM.");
+          } else {
+            logLine("FAILED ✖ " + (result.errorCode || "") + " " + (result.errorMessage || ""));
+            toast("Send failed: " + (result.errorCode || "unknown"));
+          }
+        } catch (e) {
+          logLine("ERROR ✖ " + (e.message || "send failed"));
+          toast("Send failed.");
+        } finally {
+          el("sendTest").disabled = false;
+        }
+      });
+
+      if (window.Capacitor && window.Capacitor.Plugins) {
+        void init();
+      } else {
+        document.addEventListener("deviceready", function () { void init(); }, { once: true });
+        setTimeout(function () { void init(); }, 400);
+      }
+    </script>
   </body>
 </html>

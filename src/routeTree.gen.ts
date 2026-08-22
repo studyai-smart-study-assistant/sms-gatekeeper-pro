@@ -19,6 +19,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedTestSmsRouteImport } from './routes/_authenticated/test-sms'
 import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/health'
 import { Route as ApiV1SmsSendRouteImport } from './routes/api/v1/sms/send'
 import { Route as ApiPublicV1GatewayHeartbeatRouteImport } from './routes/api/public/v1/gateway/heartbeat'
@@ -77,6 +78,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTestSmsRoute = AuthenticatedTestSmsRouteImport.update({
+  id: '/test-sms',
+  path: '/test-sms',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicV1HealthRoute = ApiPublicV1HealthRouteImport.update({
   id: '/api/public/v1/health',
   path: '/api/public/v1/health',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/devices': typeof AuthenticatedDevicesRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/test-sms': typeof AuthenticatedTestSmsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/devices': typeof AuthenticatedDevicesRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/test-sms': typeof AuthenticatedTestSmsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/devices': typeof AuthenticatedDevicesRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/test-sms': typeof AuthenticatedTestSmsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/logs'
     | '/settings'
+    | '/test-sms'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/logs'
     | '/settings'
+    | '/test-sms'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/_authenticated/devices'
     | '/_authenticated/logs'
     | '/_authenticated/settings'
+    | '/_authenticated/test-sms'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -330,6 +342,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/test-sms': {
+      id: '/_authenticated/test-sms'
+      path: '/test-sms'
+      fullPath: '/test-sms'
+      preLoaderRoute: typeof AuthenticatedTestSmsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/v1/health': {
       id: '/api/public/v1/health'
       path: '/api/public/v1/health'
@@ -395,6 +414,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedTestSmsRoute: typeof AuthenticatedTestSmsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -403,6 +423,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDevicesRoute: AuthenticatedDevicesRoute,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedTestSmsRoute: AuthenticatedTestSmsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

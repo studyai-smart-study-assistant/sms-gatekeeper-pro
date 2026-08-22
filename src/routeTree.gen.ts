@@ -25,6 +25,7 @@ import { Route as ApiPublicV1GatewayPairRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1SmsSendRouteImport } from './routes/api/public/v1/sms/send'
 import { Route as ApiPublicV1GatewayJobsAckRouteImport } from './routes/api/public/v1/gateway/jobs/ack'
 import { Route as ApiPublicV1GatewayJobsClaimRouteImport } from './routes/api/public/v1/gateway/jobs/claim'
+import { Route as ApiPublicV1SmsStatusMessageIdRouteImport } from './routes/api/public/v1/sms/status.$messageId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -108,6 +109,12 @@ const ApiPublicV1GatewayJobsClaimRoute =
     path: '/api/public/v1/gateway/jobs/claim',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicV1SmsStatusMessageIdRoute =
+  ApiPublicV1SmsStatusMessageIdRouteImport.update({
+    id: '/api/public/v1/sms/status/$messageId',
+    path: '/api/public/v1/sms/status/$messageId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
   '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
   '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
+  '/api/public/v1/sms/status/$messageId': typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +150,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
   '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
   '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
+  '/api/public/v1/sms/status/$messageId': typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +170,7 @@ export interface FileRoutesById {
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
   '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
   '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
+  '/api/public/v1/sms/status/$messageId': typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/sms/send'
     | '/api/public/v1/gateway/jobs/ack'
     | '/api/public/v1/gateway/jobs/claim'
+    | '/api/public/v1/sms/status/$messageId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/sms/send'
     | '/api/public/v1/gateway/jobs/ack'
     | '/api/public/v1/gateway/jobs/claim'
+    | '/api/public/v1/sms/status/$messageId'
   id:
     | '__root__'
     | '/'
@@ -215,6 +227,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/sms/send'
     | '/api/public/v1/gateway/jobs/ack'
     | '/api/public/v1/gateway/jobs/claim'
+    | '/api/public/v1/sms/status/$messageId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -229,6 +242,7 @@ export interface RootRouteChildren {
   ApiPublicV1SmsSendRoute: typeof ApiPublicV1SmsSendRoute
   ApiPublicV1GatewayJobsAckRoute: typeof ApiPublicV1GatewayJobsAckRoute
   ApiPublicV1GatewayJobsClaimRoute: typeof ApiPublicV1GatewayJobsClaimRoute
+  ApiPublicV1SmsStatusMessageIdRoute: typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -345,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1GatewayJobsClaimRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/sms/status/$messageId': {
+      id: '/api/public/v1/sms/status/$messageId'
+      path: '/api/public/v1/sms/status/$messageId'
+      fullPath: '/api/public/v1/sms/status/$messageId'
+      preLoaderRoute: typeof ApiPublicV1SmsStatusMessageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -379,6 +400,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1SmsSendRoute: ApiPublicV1SmsSendRoute,
   ApiPublicV1GatewayJobsAckRoute: ApiPublicV1GatewayJobsAckRoute,
   ApiPublicV1GatewayJobsClaimRoute: ApiPublicV1GatewayJobsClaimRoute,
+  ApiPublicV1SmsStatusMessageIdRoute: ApiPublicV1SmsStatusMessageIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

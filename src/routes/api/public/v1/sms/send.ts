@@ -4,7 +4,7 @@ import { handleSmsSend } from "@/lib/sms-send.server";
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "authorization, content-type, idempotency-key",
+  "Access-Control-Allow-Headers": "authorization, content-type, idempotency-key, x-api-key",
 };
 
 export const Route = createFileRoute("/api/public/v1/sms/send")({

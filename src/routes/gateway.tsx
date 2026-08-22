@@ -28,6 +28,7 @@ type Credential = { gateway_device_id: string; device_token: string };
 function GatewayPage() {
   const native = isNativeGateway();
   const [permission, setPermission] = useState<SmsPermissionState>("unknown");
+  const [notifications, setNotifications] = useState<SmsPermissionState>("unknown");
   const [info, setInfo] = useState<DeviceInfoResult | null>(null);
   const [credential, setCredential] = useState<Credential | null>(null);
   const [running, setRunning] = useState(false);
@@ -38,7 +39,10 @@ function GatewayPage() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) setCredential(JSON.parse(stored) as Credential);
     if (!native) return;
-    void SmsGateway.checkPermissions().then((r) => setPermission(r.sms));
+    void SmsGateway.checkPermissions().then((r) => {
+      setPermission(r.sms);
+      setNotifications(r.notifications ?? "unknown");
+    });
     void SmsGateway.getDeviceInfo().then(setInfo);
     void SmsGateway.getGatewayState().then((s) => setRunning(s.running));
   }, [native]);
@@ -110,13 +114,23 @@ function GatewayPage() {
             </span>
             <StatusBadge status={permission} />
           </div>
-          {permission !== "granted" ? (
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-2 text-sm font-medium">
+              <ShieldCheck className="size-4 text-primary" /> Notifications
+            </span>
+            <StatusBadge status={notifications} />
+          </div>
+          {permission !== "granted" || notifications !== "granted" ? (
             <Button
               className="w-full"
               disabled={!native}
-              onClick={async () => setPermission((await SmsGateway.requestPermissions()).sms)}
+              onClick={async () => {
+                const result = await SmsGateway.requestPermissions();
+                setPermission(result.sms);
+                setNotifications(result.notifications ?? "unknown");
+              }}
             >
-              Grant SEND_SMS permission
+              Grant SMS &amp; notification permissions
             </Button>
           ) : null}
           {permission === "permanently_denied" ? (

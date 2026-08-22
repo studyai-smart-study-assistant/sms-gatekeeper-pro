@@ -20,8 +20,8 @@ export interface DeviceInfoResult {
 }
 
 export interface SmsGatewayPlugin {
-  checkPermissions(): Promise<{ sms: SmsPermissionState }>;
-  requestPermissions(): Promise<{ sms: SmsPermissionState }>;
+  checkPermissions(): Promise<{ sms: SmsPermissionState; notifications?: SmsPermissionState }>;
+  requestPermissions(): Promise<{ sms: SmsPermissionState; notifications?: SmsPermissionState }>;
   getDeviceInfo(): Promise<DeviceInfoResult>;
   sendSms(options: { messageId: string; recipient: string; body: string }): Promise<{
     messageId: string;

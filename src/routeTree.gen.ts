@@ -12,8 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedApiKeysRouteImport } from './routes/_authenticated/api-keys'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
+import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/health'
 import { Route as ApiV1SmsSendRouteImport } from './routes/api/v1/sms/send'
 import { Route as ApiPublicV1GatewayHeartbeatRouteImport } from './routes/api/public/v1/gateway/heartbeat'
@@ -36,6 +39,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedApiKeysRoute = AuthenticatedApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -44,6 +52,16 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
   id: '/devices',
   path: '/devices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiPublicV1HealthRoute = ApiPublicV1HealthRouteImport.update({
@@ -88,8 +106,11 @@ const ApiPublicV1GatewayJobsClaimRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/api-keys': typeof AuthenticatedApiKeysRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRoute
+  '/logs': typeof AuthenticatedLogsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -101,8 +122,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/api-keys': typeof AuthenticatedApiKeysRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRoute
+  '/logs': typeof AuthenticatedLogsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -116,8 +140,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/api-keys': typeof AuthenticatedApiKeysRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/devices': typeof AuthenticatedDevicesRoute
+  '/_authenticated/logs': typeof AuthenticatedLogsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -131,8 +158,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/api-keys'
     | '/dashboard'
     | '/devices'
+    | '/logs'
+    | '/settings'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -144,8 +174,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/api-keys'
     | '/dashboard'
     | '/devices'
+    | '/logs'
+    | '/settings'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -158,8 +191,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/api-keys'
     | '/_authenticated/dashboard'
     | '/_authenticated/devices'
+    | '/_authenticated/logs'
+    | '/_authenticated/settings'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -205,6 +241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/api-keys': {
+      id: '/_authenticated/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof AuthenticatedApiKeysRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -217,6 +260,20 @@ declare module '@tanstack/react-router' {
       path: '/devices'
       fullPath: '/devices'
       preLoaderRoute: typeof AuthenticatedDevicesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/logs': {
+      id: '/_authenticated/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof AuthenticatedLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/v1/health': {
@@ -272,13 +329,19 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedApiKeysRoute: typeof AuthenticatedApiKeysRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRoute
+  AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedApiKeysRoute: AuthenticatedApiKeysRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDevicesRoute: AuthenticatedDevicesRoute,
+  AuthenticatedLogsRoute: AuthenticatedLogsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

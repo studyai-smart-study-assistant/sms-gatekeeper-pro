@@ -118,7 +118,9 @@ function ApiKeysPage() {
                     <p className="font-medium">{key.name}</p>
                     <StatusBadge status={status} />
                   </div>
-                  <p className="mt-1 font-mono text-xs text-muted-foreground">{key.masked_key}</p>
+                  <p className="mt-1 font-mono text-xs text-muted-foreground">
+                    {key.key_prefix}••••••••{key.key_hint}
+                  </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {deviceLabel(key.device_id)} · scopes {key.scopes.join(", ")} · {key.requests_per_minute} req/min ·{" "}
                     {key.sms_per_day} SMS/day

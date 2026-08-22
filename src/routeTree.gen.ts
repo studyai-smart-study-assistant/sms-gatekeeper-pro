@@ -12,8 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as GatewayRouteImport } from './routes/gateway'
+import { Route as AuthenticatedApiKeysRouteImport } from './routes/_authenticated/api-keys'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
+import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/health'
 import { Route as ApiV1SmsSendRouteImport } from './routes/api/v1/sms/send'
 import { Route as ApiPublicV1GatewayHeartbeatRouteImport } from './routes/api/public/v1/gateway/heartbeat'
@@ -21,6 +26,7 @@ import { Route as ApiPublicV1GatewayPairRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1SmsSendRouteImport } from './routes/api/public/v1/sms/send'
 import { Route as ApiPublicV1GatewayJobsAckRouteImport } from './routes/api/public/v1/gateway/jobs/ack'
 import { Route as ApiPublicV1GatewayJobsClaimRouteImport } from './routes/api/public/v1/gateway/jobs/claim'
+import { Route as ApiPublicV1SmsStatusMessageIdRouteImport } from './routes/api/public/v1/sms/status.$messageId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,6 +42,21 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GatewayRoute = GatewayRouteImport.update({
+  id: '/gateway',
+  path: '/gateway',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedApiKeysRoute = AuthenticatedApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -44,6 +65,16 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
   id: '/devices',
   path: '/devices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLogsRoute = AuthenticatedLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiPublicV1HealthRoute = ApiPublicV1HealthRouteImport.update({
@@ -84,12 +115,23 @@ const ApiPublicV1GatewayJobsClaimRoute =
     path: '/api/public/v1/gateway/jobs/claim',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicV1SmsStatusMessageIdRoute =
+  ApiPublicV1SmsStatusMessageIdRouteImport.update({
+    id: '/api/public/v1/sms/status/$messageId',
+    path: '/api/public/v1/sms/status/$messageId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/gateway': typeof GatewayRoute
+  '/api-keys': typeof AuthenticatedApiKeysRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRoute
+  '/logs': typeof AuthenticatedLogsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -97,12 +139,18 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
   '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
   '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
+  '/api/public/v1/sms/status/$messageId': typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/gateway': typeof GatewayRoute
+  '/api-keys': typeof AuthenticatedApiKeysRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRoute
+  '/logs': typeof AuthenticatedLogsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -110,14 +158,20 @@ export interface FileRoutesByTo {
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
   '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
   '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
+  '/api/public/v1/sms/status/$messageId': typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/gateway': typeof GatewayRoute
+  '/_authenticated/api-keys': typeof AuthenticatedApiKeysRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/devices': typeof AuthenticatedDevicesRoute
+  '/_authenticated/logs': typeof AuthenticatedLogsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
@@ -125,14 +179,20 @@ export interface FileRoutesById {
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
   '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
   '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
+  '/api/public/v1/sms/status/$messageId': typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/docs'
+    | '/gateway'
+    | '/api-keys'
     | '/dashboard'
     | '/devices'
+    | '/logs'
+    | '/settings'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -140,12 +200,18 @@ export interface FileRouteTypes {
     | '/api/public/v1/sms/send'
     | '/api/public/v1/gateway/jobs/ack'
     | '/api/public/v1/gateway/jobs/claim'
+    | '/api/public/v1/sms/status/$messageId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/docs'
+    | '/gateway'
+    | '/api-keys'
     | '/dashboard'
     | '/devices'
+    | '/logs'
+    | '/settings'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -153,13 +219,19 @@ export interface FileRouteTypes {
     | '/api/public/v1/sms/send'
     | '/api/public/v1/gateway/jobs/ack'
     | '/api/public/v1/gateway/jobs/claim'
+    | '/api/public/v1/sms/status/$messageId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/docs'
+    | '/gateway'
+    | '/_authenticated/api-keys'
     | '/_authenticated/dashboard'
     | '/_authenticated/devices'
+    | '/_authenticated/logs'
+    | '/_authenticated/settings'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
     | '/api/public/v1/gateway/heartbeat'
@@ -167,12 +239,15 @@ export interface FileRouteTypes {
     | '/api/public/v1/sms/send'
     | '/api/public/v1/gateway/jobs/ack'
     | '/api/public/v1/gateway/jobs/claim'
+    | '/api/public/v1/sms/status/$messageId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DocsRoute: typeof DocsRoute
+  GatewayRoute: typeof GatewayRoute
   ApiPublicV1HealthRoute: typeof ApiPublicV1HealthRoute
   ApiV1SmsSendRoute: typeof ApiV1SmsSendRoute
   ApiPublicV1GatewayHeartbeatRoute: typeof ApiPublicV1GatewayHeartbeatRoute
@@ -180,6 +255,7 @@ export interface RootRouteChildren {
   ApiPublicV1SmsSendRoute: typeof ApiPublicV1SmsSendRoute
   ApiPublicV1GatewayJobsAckRoute: typeof ApiPublicV1GatewayJobsAckRoute
   ApiPublicV1GatewayJobsClaimRoute: typeof ApiPublicV1GatewayJobsClaimRoute
+  ApiPublicV1SmsStatusMessageIdRoute: typeof ApiPublicV1SmsStatusMessageIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -205,6 +281,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gateway': {
+      id: '/gateway'
+      path: '/gateway'
+      fullPath: '/gateway'
+      preLoaderRoute: typeof GatewayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/api-keys': {
+      id: '/_authenticated/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof AuthenticatedApiKeysRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -217,6 +314,20 @@ declare module '@tanstack/react-router' {
       path: '/devices'
       fullPath: '/devices'
       preLoaderRoute: typeof AuthenticatedDevicesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/logs': {
+      id: '/_authenticated/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof AuthenticatedLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/v1/health': {
@@ -268,17 +379,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1GatewayJobsClaimRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/sms/status/$messageId': {
+      id: '/api/public/v1/sms/status/$messageId'
+      path: '/api/public/v1/sms/status/$messageId'
+      fullPath: '/api/public/v1/sms/status/$messageId'
+      preLoaderRoute: typeof ApiPublicV1SmsStatusMessageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedApiKeysRoute: typeof AuthenticatedApiKeysRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRoute
+  AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedApiKeysRoute: AuthenticatedApiKeysRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDevicesRoute: AuthenticatedDevicesRoute,
+  AuthenticatedLogsRoute: AuthenticatedLogsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -288,6 +412,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DocsRoute: DocsRoute,
+  GatewayRoute: GatewayRoute,
   ApiPublicV1HealthRoute: ApiPublicV1HealthRoute,
   ApiV1SmsSendRoute: ApiV1SmsSendRoute,
   ApiPublicV1GatewayHeartbeatRoute: ApiPublicV1GatewayHeartbeatRoute,
@@ -295,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1SmsSendRoute: ApiPublicV1SmsSendRoute,
   ApiPublicV1GatewayJobsAckRoute: ApiPublicV1GatewayJobsAckRoute,
   ApiPublicV1GatewayJobsClaimRoute: ApiPublicV1GatewayJobsClaimRoute,
+  ApiPublicV1SmsStatusMessageIdRoute: ApiPublicV1SmsStatusMessageIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

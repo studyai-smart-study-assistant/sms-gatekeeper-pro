@@ -3,14 +3,12 @@ import type { CapacitorConfig } from "@capacitor/cli";
 /**
  * Android Gateway app shell.
  *
- * The app loads the hosted Gatekeeper gateway UI (/gateway) so the pairing
- * screen and the web dashboard never drift apart. All SMS work happens in the
- * native SmsGateway plugin + foreground service, not in the WebView.
+ * The shell ships a self-contained offline UI (capacitor-web/) so the app never
+ * shows a blank screen when the network or the deployment is unreachable. The
+ * UI talks to the Gatekeeper HTTP API and to the native SmsGateway plugin.
  *
- * Set GATEWAY_SERVER_URL in CI to point the shell at your deployment.
+ * The default server URL can be overridden inside the app (Server panel).
  */
-const serverUrl = process.env["GATEWAY_SERVER_URL"] || "https://sms-gatekeeper-pro.lovable.app";
-
 const config: CapacitorConfig = {
   appId: "app.gatekeeper.smsgateway",
   appName: "SMS Gatekeeper Gateway",
@@ -18,9 +16,6 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: false,
   },
-  ...(serverUrl
-    ? { server: { url: `${serverUrl.replace(/\/$/, "")}/gateway`, cleartext: false, androidScheme: "https" } }
-    : {}),
 };
 
 export default config;

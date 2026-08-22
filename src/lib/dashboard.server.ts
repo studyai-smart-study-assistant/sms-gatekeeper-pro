@@ -118,7 +118,7 @@ export async function listDevices(db: Db, userId: string) {
 export async function createPairingCode(
   db: Db,
   userId: string,
-  input: { device_name: string; sender_number?: string },
+  input: { device_name: string; sender_number?: string | undefined },
 ) {
   const code = randomNumericCode(6);
   const expiresAt = new Date(Date.now() + PAIRING_TTL_MS).toISOString();
@@ -139,12 +139,12 @@ export async function updateDevice(
   userId: string,
   input: {
     id: string;
-    name?: string;
-    sender_number?: string | null;
-    enabled?: boolean;
-    is_default?: boolean;
-    is_backup?: boolean;
-    daily_sms_limit?: number;
+    name?: string | undefined;
+    sender_number?: string | null | undefined;
+    enabled?: boolean | undefined;
+    is_default?: boolean | undefined;
+    is_backup?: boolean | undefined;
+    daily_sms_limit?: number | undefined;
   },
 ) {
   if (input.is_default) await db.from("gateway_devices").update({ is_default: false }).eq("user_id", userId);
@@ -185,10 +185,10 @@ async function mintKey(
   userId: string,
   input: {
     name: string;
-    device_id?: string | null;
-    expires_in_days?: number | null;
-    requests_per_minute?: number;
-    sms_per_day?: number;
+    device_id?: string | null | undefined;
+    expires_in_days?: number | null | undefined;
+    requests_per_minute?: number | undefined;
+    sms_per_day?: number | undefined;
   },
 ) {
   const secret = randomId("gk_live", 32);
@@ -244,7 +244,7 @@ export async function rotateApiKey(db: Db, userId: string, id: string) {
   return created;
 }
 
-export async function listSmsJobs(db: Db, userId: string, input: { limit?: number; status?: string }) {
+export async function listSmsJobs(db: Db, userId: string, input: { limit?: number | undefined; status?: string | undefined }) {
   let query = db
     .from("sms_jobs")
     .select("id, message_id, recipient, status, created_at, sent_at, failed_at, error_code, error_message, device_id, attempts")
@@ -287,11 +287,11 @@ export async function updateSettings(
   db: Db,
   userId: string,
   input: {
-    sms_paused?: boolean;
-    requests_per_minute?: number;
-    sms_per_hour?: number;
-    sms_per_day?: number;
-    allow_backup_routing?: boolean;
+    sms_paused?: boolean | undefined;
+    requests_per_minute?: number | undefined;
+    sms_per_hour?: number | undefined;
+    sms_per_day?: number | undefined;
+    allow_backup_routing?: boolean | undefined;
   },
 ) {
   const { error } = await db.from("profiles").update(input as never).eq("id", userId);

@@ -37,9 +37,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build web assets
-        run: bun run build
-
       - name: Add Android platform
         env:
           GATEWAY_SERVER_URL: ${{ github.event.inputs.server_url || vars.GATEWAY_SERVER_URL }}

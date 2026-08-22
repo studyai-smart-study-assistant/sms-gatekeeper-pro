@@ -9,12 +9,12 @@ import type { CapacitorConfig } from "@capacitor/cli";
  *
  * Set GATEWAY_SERVER_URL in CI to point the shell at your deployment.
  */
-const serverUrl = process.env["GATEWAY_SERVER_URL"];
+const serverUrl = process.env["GATEWAY_SERVER_URL"] || "https://sms-gatekeeper-pro.lovable.app";
 
 const config: CapacitorConfig = {
   appId: "app.gatekeeper.smsgateway",
   appName: "SMS Gatekeeper Gateway",
-  webDir: "dist/client",
+  webDir: "capacitor-web",
   android: {
     allowMixedContent: false,
   },

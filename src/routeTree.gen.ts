@@ -10,33 +10,131 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/health'
+import { Route as ApiV1SmsSendRouteImport } from './routes/api/v1/sms/send'
+import { Route as ApiPublicV1GatewayHeartbeatRouteImport } from './routes/api/public/v1/gateway/heartbeat'
+import { Route as ApiPublicV1GatewayPairRouteImport } from './routes/api/public/v1/gateway/pair'
+import { Route as ApiPublicV1SmsSendRouteImport } from './routes/api/public/v1/sms/send'
+import { Route as ApiPublicV1GatewayJobsAckRouteImport } from './routes/api/public/v1/gateway/jobs/ack'
+import { Route as ApiPublicV1GatewayJobsClaimRouteImport } from './routes/api/public/v1/gateway/jobs/claim'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1HealthRoute = ApiPublicV1HealthRouteImport.update({
+  id: '/api/public/v1/health',
+  path: '/api/public/v1/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1SmsSendRoute = ApiV1SmsSendRouteImport.update({
+  id: '/api/v1/sms/send',
+  path: '/api/v1/sms/send',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1GatewayHeartbeatRoute =
+  ApiPublicV1GatewayHeartbeatRouteImport.update({
+    id: '/api/public/v1/gateway/heartbeat',
+    path: '/api/public/v1/gateway/heartbeat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1GatewayPairRoute = ApiPublicV1GatewayPairRouteImport.update({
+  id: '/api/public/v1/gateway/pair',
+  path: '/api/public/v1/gateway/pair',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SmsSendRoute = ApiPublicV1SmsSendRouteImport.update({
+  id: '/api/public/v1/sms/send',
+  path: '/api/public/v1/sms/send',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1GatewayJobsAckRoute =
+  ApiPublicV1GatewayJobsAckRouteImport.update({
+    id: '/api/public/v1/gateway/jobs/ack',
+    path: '/api/public/v1/gateway/jobs/ack',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1GatewayJobsClaimRoute =
+  ApiPublicV1GatewayJobsClaimRouteImport.update({
+    id: '/api/public/v1/gateway/jobs/claim',
+    path: '/api/public/v1/gateway/jobs/claim',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/v1/health': typeof ApiPublicV1HealthRoute
+  '/api/v1/sms/send': typeof ApiV1SmsSendRoute
+  '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
+  '/api/public/v1/gateway/pair': typeof ApiPublicV1GatewayPairRoute
+  '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
+  '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
+  '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/v1/health': typeof ApiPublicV1HealthRoute
+  '/api/v1/sms/send': typeof ApiV1SmsSendRoute
+  '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
+  '/api/public/v1/gateway/pair': typeof ApiPublicV1GatewayPairRoute
+  '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
+  '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
+  '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/v1/health': typeof ApiPublicV1HealthRoute
+  '/api/v1/sms/send': typeof ApiV1SmsSendRoute
+  '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
+  '/api/public/v1/gateway/pair': typeof ApiPublicV1GatewayPairRoute
+  '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
+  '/api/public/v1/gateway/jobs/ack': typeof ApiPublicV1GatewayJobsAckRoute
+  '/api/public/v1/gateway/jobs/claim': typeof ApiPublicV1GatewayJobsClaimRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api/public/v1/health'
+    | '/api/v1/sms/send'
+    | '/api/public/v1/gateway/heartbeat'
+    | '/api/public/v1/gateway/pair'
+    | '/api/public/v1/sms/send'
+    | '/api/public/v1/gateway/jobs/ack'
+    | '/api/public/v1/gateway/jobs/claim'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api/public/v1/health'
+    | '/api/v1/sms/send'
+    | '/api/public/v1/gateway/heartbeat'
+    | '/api/public/v1/gateway/pair'
+    | '/api/public/v1/sms/send'
+    | '/api/public/v1/gateway/jobs/ack'
+    | '/api/public/v1/gateway/jobs/claim'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/public/v1/health'
+    | '/api/v1/sms/send'
+    | '/api/public/v1/gateway/heartbeat'
+    | '/api/public/v1/gateway/pair'
+    | '/api/public/v1/sms/send'
+    | '/api/public/v1/gateway/jobs/ack'
+    | '/api/public/v1/gateway/jobs/claim'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicV1HealthRoute: typeof ApiPublicV1HealthRoute
+  ApiV1SmsSendRoute: typeof ApiV1SmsSendRoute
+  ApiPublicV1GatewayHeartbeatRoute: typeof ApiPublicV1GatewayHeartbeatRoute
+  ApiPublicV1GatewayPairRoute: typeof ApiPublicV1GatewayPairRoute
+  ApiPublicV1SmsSendRoute: typeof ApiPublicV1SmsSendRoute
+  ApiPublicV1GatewayJobsAckRoute: typeof ApiPublicV1GatewayJobsAckRoute
+  ApiPublicV1GatewayJobsClaimRoute: typeof ApiPublicV1GatewayJobsClaimRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +146,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/health': {
+      id: '/api/public/v1/health'
+      path: '/api/public/v1/health'
+      fullPath: '/api/public/v1/health'
+      preLoaderRoute: typeof ApiPublicV1HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/sms/send': {
+      id: '/api/v1/sms/send'
+      path: '/api/v1/sms/send'
+      fullPath: '/api/v1/sms/send'
+      preLoaderRoute: typeof ApiV1SmsSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/gateway/heartbeat': {
+      id: '/api/public/v1/gateway/heartbeat'
+      path: '/api/public/v1/gateway/heartbeat'
+      fullPath: '/api/public/v1/gateway/heartbeat'
+      preLoaderRoute: typeof ApiPublicV1GatewayHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/gateway/pair': {
+      id: '/api/public/v1/gateway/pair'
+      path: '/api/public/v1/gateway/pair'
+      fullPath: '/api/public/v1/gateway/pair'
+      preLoaderRoute: typeof ApiPublicV1GatewayPairRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/sms/send': {
+      id: '/api/public/v1/sms/send'
+      path: '/api/public/v1/sms/send'
+      fullPath: '/api/public/v1/sms/send'
+      preLoaderRoute: typeof ApiPublicV1SmsSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/gateway/jobs/ack': {
+      id: '/api/public/v1/gateway/jobs/ack'
+      path: '/api/public/v1/gateway/jobs/ack'
+      fullPath: '/api/public/v1/gateway/jobs/ack'
+      preLoaderRoute: typeof ApiPublicV1GatewayJobsAckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/gateway/jobs/claim': {
+      id: '/api/public/v1/gateway/jobs/claim'
+      path: '/api/public/v1/gateway/jobs/claim'
+      fullPath: '/api/public/v1/gateway/jobs/claim'
+      preLoaderRoute: typeof ApiPublicV1GatewayJobsClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicV1HealthRoute: ApiPublicV1HealthRoute,
+  ApiV1SmsSendRoute: ApiV1SmsSendRoute,
+  ApiPublicV1GatewayHeartbeatRoute: ApiPublicV1GatewayHeartbeatRoute,
+  ApiPublicV1GatewayPairRoute: ApiPublicV1GatewayPairRoute,
+  ApiPublicV1SmsSendRoute: ApiPublicV1SmsSendRoute,
+  ApiPublicV1GatewayJobsAckRoute: ApiPublicV1GatewayJobsAckRoute,
+  ApiPublicV1GatewayJobsClaimRoute: ApiPublicV1GatewayJobsClaimRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

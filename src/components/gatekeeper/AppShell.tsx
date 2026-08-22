@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, KeyRound, LayoutDashboard, LogOut, ScrollText, Settings, Smartphone, BookOpen } from "lucide-react";
+import { Activity, KeyRound, LayoutDashboard, LogOut, ScrollText, Send, Settings, Smartphone, BookOpen } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,10 +9,12 @@ const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/devices", label: "Devices", icon: Smartphone },
   { to: "/api-keys", label: "API Keys", icon: KeyRound },
+  { to: "/test-sms", label: "Test SMS", icon: Send },
   { to: "/logs", label: "SMS Logs", icon: ScrollText },
   { to: "/settings", label: "Settings", icon: Settings },
   { to: "/docs", label: "API Docs", icon: BookOpen },
 ] as const;
+
 
 export function AppShell({
   title,

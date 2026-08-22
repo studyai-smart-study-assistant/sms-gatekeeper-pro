@@ -80,14 +80,19 @@
       <div class="panel">
         <h2>Permissions</h2>
         <div class="row">
-          <span>SEND_SMS</span>
+          <span>SEND_SMS (send messages via SIM)</span>
           <span class="badge" id="permBadge">unknown</span>
         </div>
-        <button id="grantPerm">Grant SMS permission</button>
+        <div class="row">
+          <span>Notifications (keep service alive)</span>
+          <span class="badge" id="notifBadge">unknown</span>
+        </div>
+        <button id="grantPerm">Grant permissions</button>
         <p class="hint hidden" id="permDenied">
-          Permission is permanently denied. Open Android Settings → Apps → SMS Gatekeeper Gateway → Permissions and allow SMS.
+          Permission is permanently denied. Open Android Settings → Apps → SMS Gatekeeper Gateway → Permissions and allow SMS and Notifications.
         </p>
       </div>
+
 
       <div class="panel" id="pairPanel">
         <h2>Pair device</h2>

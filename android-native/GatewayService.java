@@ -103,7 +103,14 @@ public class GatewayService extends Service {
         if (manager != null) manager.notify(1, buildNotification("Gateway active", text));
     }
 
+    /** Report the real permission state so the dashboard can flag a broken device. */
+    private String smsPermissionState() {
+        return ContextCompat.checkSelfPermission(this, android.Manifest.permission.SEND_SMS)
+            == PackageManager.PERMISSION_GRANTED ? "granted" : "denied";
+    }
+
     private void tick() {
+
         SharedPreferences prefs = getSharedPreferences(SmsGatewayPlugin.PREFS, Context.MODE_PRIVATE);
         if (!prefs.getBoolean("enabled", false)) {
             stopSelf();

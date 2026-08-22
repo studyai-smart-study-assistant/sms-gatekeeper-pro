@@ -148,9 +148,16 @@
         node.textContent = text;
         node.className = "badge" + (kind ? " " + kind : "");
       }
+      var pluginRef = null;
       function plugin() {
+        if (pluginRef) return pluginRef;
         var cap = window.Capacitor;
-        return cap && cap.Plugins && cap.Plugins.SmsGateway ? cap.Plugins.SmsGateway : null;
+        if (!cap) return null;
+        if (cap.Plugins && cap.Plugins.SmsGateway) pluginRef = cap.Plugins.SmsGateway;
+        else if (cap.isNativePlatform && cap.isNativePlatform() && cap.registerPlugin) {
+          try { pluginRef = cap.registerPlugin("SmsGateway"); } catch (e) { pluginRef = null; }
+        }
+        return pluginRef;
       }
       function baseUrl() {
         return (localStorage.getItem(URL_KEY) || DEFAULT_URL).replace(/\/+$/, "");

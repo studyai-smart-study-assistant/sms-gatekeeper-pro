@@ -68,7 +68,9 @@ function DevicesPage() {
 
   const pairMutation = useMutation({
     mutationFn: () =>
-      mintCode({ data: { device_name: deviceName, sender_number: senderNumber || null } }),
+      mintCode({
+        data: { device_name: deviceName, ...(senderNumber ? { sender_number: senderNumber } : {}) },
+      }),
     onSuccess: (result) => setPairing(result),
     onError: () => toast.error("Could not create a pairing code."),
   });
@@ -156,7 +158,7 @@ function DevicesPage() {
                 <div>
                   <dt className="text-muted-foreground">Sent / failed</dt>
                   <dd className="font-mono">
-                    {device.sent_count} / {device.failed_count}
+                    {device.stats.sent} / {device.stats.failed}
                   </dd>
                 </div>
                 <div>

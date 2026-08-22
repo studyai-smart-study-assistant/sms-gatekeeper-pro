@@ -8,9 +8,12 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -112,7 +115,7 @@ public class GatewayService extends Service {
 
         try {
             JSONObject heartbeat = new JSONObject();
-            heartbeat.put("sms_permission", "granted");
+            heartbeat.put("sms_permission", smsPermissionState());
             heartbeat.put("app_version", appVersion());
             heartbeat.put("android_version", Build.VERSION.RELEASE);
             post(baseUrl + "/api/public/v1/gateway/heartbeat", token, heartbeat);

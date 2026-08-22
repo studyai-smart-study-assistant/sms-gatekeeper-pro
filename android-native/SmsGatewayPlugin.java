@@ -40,7 +40,8 @@ import java.util.UUID;
     name = "SmsGateway",
     permissions = {
         @Permission(alias = "sms", strings = { Manifest.permission.SEND_SMS }),
-        @Permission(alias = "phone", strings = { Manifest.permission.READ_PHONE_STATE })
+        @Permission(alias = "phone", strings = { Manifest.permission.READ_PHONE_STATE }),
+        @Permission(alias = "notifications", strings = { "android.permission.POST_NOTIFICATIONS" })
     }
 )
 public class SmsGatewayPlugin extends Plugin {
@@ -59,25 +60,50 @@ public class SmsGatewayPlugin extends Plugin {
         return "denied";
     }
 
-    @PluginMethod
-    public void checkPermissions(PluginCall call) {
+    /** POST_NOTIFICATIONS only exists on Android 13+; older versions are implicitly granted. */
+    private String notificationState() {
+        if (Build.VERSION.SDK_INT < 33) return "granted";
+        boolean granted = ContextCompat.checkSelfPermission(getContext(), "android.permission.POST_NOTIFICATIONS")
+            == PackageManager.PERMISSION_GRANTED;
+        if (granted) return "granted";
+        if (getActivity() != null
+            && !getActivity().shouldShowRequestPermissionRationale("android.permission.POST_NOTIFICATIONS")) {
+            SharedPreferences prefs = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            if (prefs.getBoolean("notifAsked", false)) return "permanently_denied";
+        }
+        return "denied";
+    }
+
+    private JSObject states() {
         JSObject result = new JSObject();
         result.put("sms", permissionState());
-        call.resolve(result);
+        result.put("notifications", notificationState());
+        return result;
+    }
+
+    @PluginMethod
+    public void checkPermissions(PluginCall call) {
+        call.resolve(states());
     }
 
     @PluginMethod
     public void requestPermissions(PluginCall call) {
-        getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("smsAsked", true).apply();
-        requestPermissionForAlias("sms", call, "permissionCallback");
+        getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean("smsAsked", true)
+            .putBoolean("notifAsked", true)
+            .apply();
+        if (Build.VERSION.SDK_INT >= 33) {
+            requestPermissionForAliases(new String[] { "sms", "notifications" }, call, "permissionCallback");
+        } else {
+            requestPermissionForAlias("sms", call, "permissionCallback");
+        }
     }
 
     @PermissionCallback
     private void permissionCallback(PluginCall call) {
-        JSObject result = new JSObject();
-        result.put("sms", permissionState());
-        call.resolve(result);
+        call.resolve(states());
     }
+
 
     @PluginMethod
     public void getDeviceInfo(PluginCall call) {

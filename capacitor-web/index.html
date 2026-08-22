@@ -80,14 +80,19 @@
       <div class="panel">
         <h2>Permissions</h2>
         <div class="row">
-          <span>SEND_SMS</span>
+          <span>SEND_SMS (send messages via SIM)</span>
           <span class="badge" id="permBadge">unknown</span>
         </div>
-        <button id="grantPerm">Grant SMS permission</button>
+        <div class="row">
+          <span>Notifications (keep service alive)</span>
+          <span class="badge" id="notifBadge">unknown</span>
+        </div>
+        <button id="grantPerm">Grant permissions</button>
         <p class="hint hidden" id="permDenied">
-          Permission is permanently denied. Open Android Settings → Apps → SMS Gatekeeper Gateway → Permissions and allow SMS.
+          Permission is permanently denied. Open Android Settings → Apps → SMS Gatekeeper Gateway → Permissions and allow SMS and Notifications.
         </p>
       </div>
+
 
       <div class="panel" id="pairPanel">
         <h2>Pair device</h2>
@@ -168,7 +173,7 @@
         el("testLog").prepend(d);
       }
 
-      var state = { info: null, credential: null, permission: "unknown", running: false };
+      var state = { info: null, credential: null, permission: "unknown", notifications: "unknown", running: false };
 
       function renderCredential() {
         if (state.credential) {
@@ -183,7 +188,9 @@
       function renderPermission() {
         var p = state.permission;
         badge(el("permBadge"), p, p === "granted" ? "ok" : p === "unknown" ? "" : "bad");
-        el("grantPerm").classList.toggle("hidden", p === "granted");
+        var n = state.notifications;
+        badge(el("notifBadge"), n, n === "granted" ? "ok" : n === "unknown" ? "" : "warn");
+        el("grantPerm").classList.toggle("hidden", p === "granted" && n === "granted");
         el("permDenied").classList.toggle("hidden", p !== "permanently_denied");
       }
       function renderRunning() {
@@ -221,7 +228,9 @@
         }
         el("nativeHint").textContent = "Native SMS layer detected.";
         try {
-          state.permission = (await p.checkPermissions()).sms;
+          var perms = await p.checkPermissions();
+          state.permission = perms.sms;
+          state.notifications = perms.notifications || "unknown";
           renderPermission();
         } catch (e) {}
         try {
@@ -254,7 +263,9 @@
         var p = plugin();
         if (!p) { toast("Native layer unavailable."); return; }
         try {
-          state.permission = (await p.requestPermissions()).sms;
+          var granted = await p.requestPermissions();
+          state.permission = granted.sms;
+          state.notifications = granted.notifications || "unknown";
           renderPermission();
         } catch (e) { toast("Permission request failed."); }
       });

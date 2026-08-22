@@ -46,18 +46,23 @@ function AuthPage() {
 
   const signUp = async () => {
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
     });
     setBusy(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success("Account created. You can sign in now.");
+    if (data.session) {
+      void navigate({ to: "/dashboard" });
+      return;
+    }
+    toast.success("Account created. Check your inbox and confirm your email, then sign in.");
   };
+
 
   const google = async () => {
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });

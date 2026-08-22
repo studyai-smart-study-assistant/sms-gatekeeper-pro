@@ -101,7 +101,7 @@ export async function handlePair(request: Request): Promise<Response> {
       android_version: parsed.data.android_version ?? null,
       app_version: parsed.data.app_version ?? null,
       sms_permission: parsed.data.sms_permission ?? "unknown",
-      sim_info: parsed.data.sim_info ?? null,
+      sim_info: (parsed.data.sim_info ?? null) as never,
       install_id: parsed.data.install_id,
       paired_at: new Date().toISOString(),
       last_heartbeat_at: new Date().toISOString(),
@@ -139,13 +139,19 @@ export async function handleHeartbeat(request: Request): Promise<Response> {
   if (!parsed.success) return jsonError(422, "INVALID_REQUEST", "Invalid heartbeat payload.");
   const now = new Date().toISOString();
 
-  const patch: Record<string, unknown> = { last_heartbeat_at: now };
+  const patch: {
+    last_heartbeat_at: string;
+    sms_permission?: string;
+    status?: string;
+    app_version?: string;
+    android_version?: string;
+  } = { last_heartbeat_at: now };
   if (parsed.data.sms_permission) {
-    patch["sms_permission"] = parsed.data.sms_permission;
-    patch["status"] = parsed.data.sms_permission === "granted" ? "active" : "permission_required";
+    patch.sms_permission = parsed.data.sms_permission;
+    patch.status = parsed.data.sms_permission === "granted" ? "active" : "permission_required";
   }
-  if (parsed.data.app_version) patch["app_version"] = parsed.data.app_version;
-  if (parsed.data.android_version) patch["android_version"] = parsed.data.android_version;
+  if (parsed.data.app_version) patch.app_version = parsed.data.app_version;
+  if (parsed.data.android_version) patch.android_version = parsed.data.android_version;
 
   const { data: device } = await ctx.db
     .from("gateway_devices")

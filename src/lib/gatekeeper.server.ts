@@ -80,6 +80,7 @@ export type ApiErrorCode =
   | "INVALID_PHONE_NUMBER"
   | "INVALID_REQUEST"
   | "RATE_LIMITED"
+  | "MESSAGE_NOT_FOUND"
   | "INTERNAL_ERROR";
 
 export function jsonError(status: number, code: ApiErrorCode, message: string, extra?: Record<string, unknown>) {
@@ -91,6 +92,8 @@ export function json(body: unknown, status = 200) {
 }
 
 export function bearer(request: Request): string | null {
+  const direct = request.headers.get("x-api-key");
+  if (direct && direct.trim()) return direct.trim();
   const header = request.headers.get("authorization") ?? "";
   const match = /^Bearer\s+(.+)$/i.exec(header.trim());
   return match ? (match[1] as string).trim() : null;

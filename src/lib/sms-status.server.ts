@@ -26,7 +26,7 @@ export async function handleSmsStatus(request: Request, messageId: string): Prom
 
   const { data: jobRow } = await db
     .from("sms_jobs")
-    .select("message_id, status, attempts, error_code, error_message, created_at, sent_at, gateway_device_id")
+    .select("message_id, status, attempts, error_code, error_message, created_at, sent_at")
     .eq("user_id", apiKey.user_id)
     .eq("message_id", messageId)
     .maybeSingle();
@@ -37,12 +37,12 @@ export async function handleSmsStatus(request: Request, messageId: string): Prom
     method: "GET",
     path,
     status_code: jobRow ? 200 : 404,
-    ...(jobRow ? {} : { error_code: "NOT_FOUND" }),
+    ...(jobRow ? {} : { error_code: "MESSAGE_NOT_FOUND" }),
   });
 
-  if (!jobRow) return jsonError(404, "NOT_FOUND", `No SMS job with message_id ${messageId}.`);
+  if (!jobRow) return jsonError(404, "MESSAGE_NOT_FOUND", `No SMS job with message_id ${messageId}.`);
 
-  const job = jobRow as Record<string, unknown>;
+  const job = jobRow as unknown as Record<string, unknown>;
   return json({
     success: true,
     message_id: job['message_id'],

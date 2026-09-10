@@ -22,6 +22,10 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedTestSmsRouteImport } from './routes/_authenticated/test-sms'
 import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/health'
 import { Route as ApiV1SmsSendRouteImport } from './routes/api/v1/sms/send'
+import { Route as ApiPublicV1AppApiKeysRouteImport } from './routes/api/public/v1/app/api-keys'
+import { Route as ApiPublicV1AppConfigRouteImport } from './routes/api/public/v1/app/config'
+import { Route as ApiPublicV1AppOverviewRouteImport } from './routes/api/public/v1/app/overview'
+import { Route as ApiPublicV1AppRegisterDeviceRouteImport } from './routes/api/public/v1/app/register-device'
 import { Route as ApiPublicV1GatewayHeartbeatRouteImport } from './routes/api/public/v1/gateway/heartbeat'
 import { Route as ApiPublicV1GatewayPairRouteImport } from './routes/api/public/v1/gateway/pair'
 import { Route as ApiPublicV1SmsSendRouteImport } from './routes/api/public/v1/sms/send'
@@ -93,6 +97,27 @@ const ApiV1SmsSendRoute = ApiV1SmsSendRouteImport.update({
   path: '/api/v1/sms/send',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1AppApiKeysRoute = ApiPublicV1AppApiKeysRouteImport.update({
+  id: '/api/public/v1/app/api-keys',
+  path: '/api/public/v1/app/api-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1AppConfigRoute = ApiPublicV1AppConfigRouteImport.update({
+  id: '/api/public/v1/app/config',
+  path: '/api/public/v1/app/config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1AppOverviewRoute = ApiPublicV1AppOverviewRouteImport.update({
+  id: '/api/public/v1/app/overview',
+  path: '/api/public/v1/app/overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1AppRegisterDeviceRoute =
+  ApiPublicV1AppRegisterDeviceRouteImport.update({
+    id: '/api/public/v1/app/register-device',
+    path: '/api/public/v1/app/register-device',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1GatewayHeartbeatRoute =
   ApiPublicV1GatewayHeartbeatRouteImport.update({
     id: '/api/public/v1/gateway/heartbeat',
@@ -141,6 +166,10 @@ export interface FileRoutesByFullPath {
   '/test-sms': typeof AuthenticatedTestSmsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
+  '/api/public/v1/app/api-keys': typeof ApiPublicV1AppApiKeysRoute
+  '/api/public/v1/app/config': typeof ApiPublicV1AppConfigRoute
+  '/api/public/v1/app/overview': typeof ApiPublicV1AppOverviewRoute
+  '/api/public/v1/app/register-device': typeof ApiPublicV1AppRegisterDeviceRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
   '/api/public/v1/gateway/pair': typeof ApiPublicV1GatewayPairRoute
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
@@ -161,6 +190,10 @@ export interface FileRoutesByTo {
   '/test-sms': typeof AuthenticatedTestSmsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
+  '/api/public/v1/app/api-keys': typeof ApiPublicV1AppApiKeysRoute
+  '/api/public/v1/app/config': typeof ApiPublicV1AppConfigRoute
+  '/api/public/v1/app/overview': typeof ApiPublicV1AppOverviewRoute
+  '/api/public/v1/app/register-device': typeof ApiPublicV1AppRegisterDeviceRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
   '/api/public/v1/gateway/pair': typeof ApiPublicV1GatewayPairRoute
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
@@ -183,6 +216,10 @@ export interface FileRoutesById {
   '/_authenticated/test-sms': typeof AuthenticatedTestSmsRoute
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/v1/sms/send': typeof ApiV1SmsSendRoute
+  '/api/public/v1/app/api-keys': typeof ApiPublicV1AppApiKeysRoute
+  '/api/public/v1/app/config': typeof ApiPublicV1AppConfigRoute
+  '/api/public/v1/app/overview': typeof ApiPublicV1AppOverviewRoute
+  '/api/public/v1/app/register-device': typeof ApiPublicV1AppRegisterDeviceRoute
   '/api/public/v1/gateway/heartbeat': typeof ApiPublicV1GatewayHeartbeatRoute
   '/api/public/v1/gateway/pair': typeof ApiPublicV1GatewayPairRoute
   '/api/public/v1/sms/send': typeof ApiPublicV1SmsSendRoute
@@ -205,6 +242,10 @@ export interface FileRouteTypes {
     | '/test-sms'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
+    | '/api/public/v1/app/api-keys'
+    | '/api/public/v1/app/config'
+    | '/api/public/v1/app/overview'
+    | '/api/public/v1/app/register-device'
     | '/api/public/v1/gateway/heartbeat'
     | '/api/public/v1/gateway/pair'
     | '/api/public/v1/sms/send'
@@ -225,6 +266,10 @@ export interface FileRouteTypes {
     | '/test-sms'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
+    | '/api/public/v1/app/api-keys'
+    | '/api/public/v1/app/config'
+    | '/api/public/v1/app/overview'
+    | '/api/public/v1/app/register-device'
     | '/api/public/v1/gateway/heartbeat'
     | '/api/public/v1/gateway/pair'
     | '/api/public/v1/sms/send'
@@ -246,6 +291,10 @@ export interface FileRouteTypes {
     | '/_authenticated/test-sms'
     | '/api/public/v1/health'
     | '/api/v1/sms/send'
+    | '/api/public/v1/app/api-keys'
+    | '/api/public/v1/app/config'
+    | '/api/public/v1/app/overview'
+    | '/api/public/v1/app/register-device'
     | '/api/public/v1/gateway/heartbeat'
     | '/api/public/v1/gateway/pair'
     | '/api/public/v1/sms/send'
@@ -262,6 +311,10 @@ export interface RootRouteChildren {
   GatewayRoute: typeof GatewayRoute
   ApiPublicV1HealthRoute: typeof ApiPublicV1HealthRoute
   ApiV1SmsSendRoute: typeof ApiV1SmsSendRoute
+  ApiPublicV1AppApiKeysRoute: typeof ApiPublicV1AppApiKeysRoute
+  ApiPublicV1AppConfigRoute: typeof ApiPublicV1AppConfigRoute
+  ApiPublicV1AppOverviewRoute: typeof ApiPublicV1AppOverviewRoute
+  ApiPublicV1AppRegisterDeviceRoute: typeof ApiPublicV1AppRegisterDeviceRoute
   ApiPublicV1GatewayHeartbeatRoute: typeof ApiPublicV1GatewayHeartbeatRoute
   ApiPublicV1GatewayPairRoute: typeof ApiPublicV1GatewayPairRoute
   ApiPublicV1SmsSendRoute: typeof ApiPublicV1SmsSendRoute
@@ -363,6 +416,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1SmsSendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/app/api-keys': {
+      id: '/api/public/v1/app/api-keys'
+      path: '/api/public/v1/app/api-keys'
+      fullPath: '/api/public/v1/app/api-keys'
+      preLoaderRoute: typeof ApiPublicV1AppApiKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/app/config': {
+      id: '/api/public/v1/app/config'
+      path: '/api/public/v1/app/config'
+      fullPath: '/api/public/v1/app/config'
+      preLoaderRoute: typeof ApiPublicV1AppConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/app/overview': {
+      id: '/api/public/v1/app/overview'
+      path: '/api/public/v1/app/overview'
+      fullPath: '/api/public/v1/app/overview'
+      preLoaderRoute: typeof ApiPublicV1AppOverviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/app/register-device': {
+      id: '/api/public/v1/app/register-device'
+      path: '/api/public/v1/app/register-device'
+      fullPath: '/api/public/v1/app/register-device'
+      preLoaderRoute: typeof ApiPublicV1AppRegisterDeviceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/gateway/heartbeat': {
       id: '/api/public/v1/gateway/heartbeat'
       path: '/api/public/v1/gateway/heartbeat'
@@ -437,6 +518,10 @@ const rootRouteChildren: RootRouteChildren = {
   GatewayRoute: GatewayRoute,
   ApiPublicV1HealthRoute: ApiPublicV1HealthRoute,
   ApiV1SmsSendRoute: ApiV1SmsSendRoute,
+  ApiPublicV1AppApiKeysRoute: ApiPublicV1AppApiKeysRoute,
+  ApiPublicV1AppConfigRoute: ApiPublicV1AppConfigRoute,
+  ApiPublicV1AppOverviewRoute: ApiPublicV1AppOverviewRoute,
+  ApiPublicV1AppRegisterDeviceRoute: ApiPublicV1AppRegisterDeviceRoute,
   ApiPublicV1GatewayHeartbeatRoute: ApiPublicV1GatewayHeartbeatRoute,
   ApiPublicV1GatewayPairRoute: ApiPublicV1GatewayPairRoute,
   ApiPublicV1SmsSendRoute: ApiPublicV1SmsSendRoute,

@@ -306,7 +306,7 @@
       async function refreshSession() {
         if (!state.session || !state.session.refresh_token) return false;
         try {
-          var payload = await authFetch("?grant_type=refresh_token".replace("?", "/auth/v1/token?"), {
+          var payload = await authFetch("/auth/v1/token?grant_type=refresh_token", {
             refresh_token: state.session.refresh_token
           });
           saveSession({ access_token: payload.access_token, refresh_token: payload.refresh_token });

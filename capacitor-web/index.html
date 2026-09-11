@@ -286,9 +286,16 @@
       }
       async function config() {
         if (state.config) return state.config;
-        var res = await fetch(baseUrl() + "/api/public/v1/app/config", { cache: "no-store" });
-        var payload = await res.json();
-        if (!payload.supabase_url || !payload.supabase_key) throw new Error("Server did not return auth config.");
+        var res = await fetch(baseUrl() + "/api/public/v1/app/config", {
+          cache: "no-store",
+          headers: { Accept: "application/json" }
+        });
+        var text = await res.text();
+        var payload = null;
+        try { payload = JSON.parse(text); } catch (e) { payload = null; }
+        if (!payload || !payload.supabase_url || !payload.supabase_key) {
+          throw new Error("This server version is outdated — publish the Gatekeeper server again, then retry.");
+        }
         state.config = payload;
         return payload;
       }

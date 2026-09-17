@@ -137,7 +137,9 @@ public class GatewayService extends Service {
                 for (int i = 0; i < jobs.length(); i++) {
                     JSONObject job = jobs.getJSONObject(i);
                     String messageId = job.getString("message_id");
-                    SmsResult result = SmsSender.sendBlocking(this, job.getString("recipient"), job.getString("body"));
+                    SmsResult result = SmsSender.sendBlocking(
+                        this, job.getString("recipient"), job.getString("body"),
+                        prefs.getInt("simSubscriptionId", -1));
 
                     JSONObject ack = new JSONObject();
                     ack.put("message_id", messageId);

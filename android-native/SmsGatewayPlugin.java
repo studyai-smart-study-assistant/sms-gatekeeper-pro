@@ -15,6 +15,8 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.telephony.SmsManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
 import androidx.activity.result.ActivityResult;
@@ -29,7 +31,11 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -93,9 +99,9 @@ public class SmsGatewayPlugin extends Plugin {
             .putBoolean("notifAsked", true)
             .apply();
         if (Build.VERSION.SDK_INT >= 33) {
-            requestPermissionForAliases(new String[] { "sms", "notifications" }, call, "permissionCallback");
+            requestPermissionForAliases(new String[] { "sms", "phone", "notifications" }, call, "permissionCallback");
         } else {
-            requestPermissionForAlias("sms", call, "permissionCallback");
+            requestPermissionForAliases(new String[] { "sms", "phone" }, call, "permissionCallback");
         }
     }
 
@@ -227,7 +233,11 @@ public class SmsGatewayPlugin extends Plugin {
             return;
         }
 
-        SmsResult result = SmsSender.sendBlocking(getContext(), recipient, body);
+        Integer requested = call.getInt("subscriptionId");
+        int subscriptionId = requested != null
+            ? requested
+            : getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt("simSubscriptionId", -1);
+        SmsResult result = SmsSender.sendBlocking(getContext(), recipient, body, subscriptionId);
         JSObject payload = new JSObject();
         payload.put("messageId", messageId);
         payload.put("status", result.ok ? "sent" : "failed");

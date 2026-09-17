@@ -257,6 +257,9 @@ export type Database = {
           paired_at: string | null
           sender_number: string | null
           sim_info: Json | null
+          sim_label: string | null
+          sim_slot: number | null
+          sim_subscription_id: number | null
           sms_permission: string
           status: string
           updated_at: string
@@ -278,6 +281,9 @@ export type Database = {
           paired_at?: string | null
           sender_number?: string | null
           sim_info?: Json | null
+          sim_label?: string | null
+          sim_slot?: number | null
+          sim_subscription_id?: number | null
           sms_permission?: string
           status?: string
           updated_at?: string
@@ -299,6 +305,9 @@ export type Database = {
           paired_at?: string | null
           sender_number?: string | null
           sim_info?: Json | null
+          sim_label?: string | null
+          sim_slot?: number | null
+          sim_subscription_id?: number | null
           sms_permission?: string
           status?: string
           updated_at?: string

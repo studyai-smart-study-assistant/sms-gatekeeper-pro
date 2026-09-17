@@ -39,10 +39,27 @@ final class SmsSender {
     }
 
     static SmsResult sendBlocking(Context context, String recipient, String body) {
+        return sendBlocking(context, recipient, body, -1);
+    }
+
+    /**
+     * @param subscriptionId the SIM chosen by the user, or -1 to use the system default SIM.
+     */
+    static SmsResult sendBlocking(Context context, String recipient, String body, int subscriptionId) {
         SmsManager manager = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             ? context.getSystemService(SmsManager.class)
             : SmsManager.getDefault();
         if (manager == null) return new SmsResult(false, "NO_SMS_MANAGER", "SmsManager unavailable.");
+        if (subscriptionId >= 0) {
+            try {
+                manager = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    ? manager.createForSubscriptionId(subscriptionId)
+                    : SmsManager.getSmsManagerForSubscriptionId(subscriptionId);
+            } catch (Exception ignored) {
+                // Fall back to the default SmsManager if this SIM is no longer available.
+            }
+            if (manager == null) return new SmsResult(false, "SIM_UNAVAILABLE", "The selected SIM is not available.");
+        }
 
         final CountDownLatch latch = new CountDownLatch(1);
         final int[] resultCode = { Activity.RESULT_CANCELED };

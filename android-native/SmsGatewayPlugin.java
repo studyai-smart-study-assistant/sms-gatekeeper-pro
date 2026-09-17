@@ -15,6 +15,8 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.telephony.SmsManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
 import androidx.activity.result.ActivityResult;
@@ -29,7 +31,11 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -93,9 +99,9 @@ public class SmsGatewayPlugin extends Plugin {
             .putBoolean("notifAsked", true)
             .apply();
         if (Build.VERSION.SDK_INT >= 33) {
-            requestPermissionForAliases(new String[] { "sms", "notifications" }, call, "permissionCallback");
+            requestPermissionForAliases(new String[] { "sms", "phone", "notifications" }, call, "permissionCallback");
         } else {
-            requestPermissionForAlias("sms", call, "permissionCallback");
+            requestPermissionForAliases(new String[] { "sms", "phone" }, call, "permissionCallback");
         }
     }
 
@@ -104,6 +110,69 @@ public class SmsGatewayPlugin extends Plugin {
         call.resolve(states());
     }
 
+
+    /** Active SIM cards, so the user can pick which one sends the SMS. */
+    @PluginMethod
+    public void listSims(PluginCall call) {
+        JSObject result = new JSObject();
+        JSONArray sims = new JSONArray();
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+
+        boolean canRead = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE)
+            == PackageManager.PERMISSION_GRANTED;
+        if (!canRead) {
+            result.put("permission", "denied");
+            result.put("sims", sims);
+            result.put("selectedSubscriptionId", prefs.getInt("simSubscriptionId", -1));
+            call.resolve(result);
+            return;
+        }
+
+        try {
+            SubscriptionManager manager = (SubscriptionManager) getContext()
+                .getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            List<SubscriptionInfo> active = manager != null ? manager.getActiveSubscriptionInfoList() : null;
+            if (active != null) {
+                for (SubscriptionInfo info : active) {
+                    JSONObject sim = new JSONObject();
+                    sim.put("subscriptionId", info.getSubscriptionId());
+                    sim.put("slot", info.getSimSlotIndex());
+                    CharSequence carrier = info.getCarrierName();
+                    CharSequence label = info.getDisplayName();
+                    sim.put("carrier", carrier != null ? carrier.toString() : "SIM");
+                    sim.put("label", label != null ? label.toString() : "SIM " + (info.getSimSlotIndex() + 1));
+                    sim.put("number", info.getNumber() != null && !info.getNumber().isEmpty() ? info.getNumber() : null);
+                    sims.put(sim);
+                }
+            }
+            result.put("permission", "granted");
+        } catch (Exception error) {
+            result.put("permission", "granted");
+            result.put("error", String.valueOf(error.getMessage()));
+        }
+
+        result.put("sims", sims);
+        result.put("selectedSubscriptionId", prefs.getInt("simSubscriptionId", -1));
+        call.resolve(result);
+    }
+
+    /** Remember the SIM the user chose; the background service sends through it. */
+    @PluginMethod
+    public void selectSim(PluginCall call) {
+        Integer subscriptionId = call.getInt("subscriptionId");
+        if (subscriptionId == null) {
+            call.reject("subscriptionId is required");
+            return;
+        }
+        SharedPreferences.Editor editor = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+        editor.putInt("simSubscriptionId", subscriptionId);
+        if (call.getString("label") != null) editor.putString("simLabel", call.getString("label"));
+        if (call.getInt("slot") != null) editor.putInt("simSlot", call.getInt("slot"));
+        editor.apply();
+        JSObject result = new JSObject();
+        result.put("selectedSubscriptionId", subscriptionId);
+        call.resolve(result);
+    }
 
     @PluginMethod
     public void getDeviceInfo(PluginCall call) {
@@ -164,7 +233,11 @@ public class SmsGatewayPlugin extends Plugin {
             return;
         }
 
-        SmsResult result = SmsSender.sendBlocking(getContext(), recipient, body);
+        Integer requested = call.getInt("subscriptionId");
+        int subscriptionId = requested != null
+            ? requested
+            : getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt("simSubscriptionId", -1);
+        SmsResult result = SmsSender.sendBlocking(getContext(), recipient, body, subscriptionId);
         JSObject payload = new JSObject();
         payload.put("messageId", messageId);
         payload.put("status", result.ok ? "sent" : "failed");

@@ -105,6 +105,69 @@ public class SmsGatewayPlugin extends Plugin {
     }
 
 
+    /** Active SIM cards, so the user can pick which one sends the SMS. */
+    @PluginMethod
+    public void listSims(PluginCall call) {
+        JSObject result = new JSObject();
+        JSONArray sims = new JSONArray();
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+
+        boolean canRead = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE)
+            == PackageManager.PERMISSION_GRANTED;
+        if (!canRead) {
+            result.put("permission", "denied");
+            result.put("sims", sims);
+            result.put("selectedSubscriptionId", prefs.getInt("simSubscriptionId", -1));
+            call.resolve(result);
+            return;
+        }
+
+        try {
+            SubscriptionManager manager = (SubscriptionManager) getContext()
+                .getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            List<SubscriptionInfo> active = manager != null ? manager.getActiveSubscriptionInfoList() : null;
+            if (active != null) {
+                for (SubscriptionInfo info : active) {
+                    JSONObject sim = new JSONObject();
+                    sim.put("subscriptionId", info.getSubscriptionId());
+                    sim.put("slot", info.getSimSlotIndex());
+                    CharSequence carrier = info.getCarrierName();
+                    CharSequence label = info.getDisplayName();
+                    sim.put("carrier", carrier != null ? carrier.toString() : "SIM");
+                    sim.put("label", label != null ? label.toString() : "SIM " + (info.getSimSlotIndex() + 1));
+                    sim.put("number", info.getNumber() != null && !info.getNumber().isEmpty() ? info.getNumber() : null);
+                    sims.put(sim);
+                }
+            }
+            result.put("permission", "granted");
+        } catch (Exception error) {
+            result.put("permission", "granted");
+            result.put("error", String.valueOf(error.getMessage()));
+        }
+
+        result.put("sims", sims);
+        result.put("selectedSubscriptionId", prefs.getInt("simSubscriptionId", -1));
+        call.resolve(result);
+    }
+
+    /** Remember the SIM the user chose; the background service sends through it. */
+    @PluginMethod
+    public void selectSim(PluginCall call) {
+        Integer subscriptionId = call.getInt("subscriptionId");
+        if (subscriptionId == null) {
+            call.reject("subscriptionId is required");
+            return;
+        }
+        SharedPreferences.Editor editor = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+        editor.putInt("simSubscriptionId", subscriptionId);
+        if (call.getString("label") != null) editor.putString("simLabel", call.getString("label"));
+        if (call.getInt("slot") != null) editor.putInt("simSlot", call.getInt("slot"));
+        editor.apply();
+        JSObject result = new JSObject();
+        result.put("selectedSubscriptionId", subscriptionId);
+        call.resolve(result);
+    }
+
     @PluginMethod
     public void getDeviceInfo(PluginCall call) {
         SharedPreferences prefs = getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);

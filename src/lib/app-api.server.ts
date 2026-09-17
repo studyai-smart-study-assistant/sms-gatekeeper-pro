@@ -48,6 +48,9 @@ const registerSchema = z.object({
   app_version: z.string().max(40).optional(),
   sms_permission: z.enum(["granted", "denied", "permanently_denied", "unknown"]).optional(),
   sim_info: z.record(z.string(), z.unknown()).optional(),
+  sim_subscription_id: z.number().int().min(-1).max(2147483647).optional(),
+  sim_slot: z.number().int().min(0).max(8).optional(),
+  sim_label: z.string().max(60).optional(),
 });
 
 /** Register (or re-register) the phone running the app. No pairing code needed. */
@@ -68,6 +71,9 @@ export async function handleAppRegisterDevice(request: Request): Promise<Respons
     app_version: input.app_version ?? null,
     sms_permission: input.sms_permission ?? "unknown",
     sim_info: (input.sim_info ?? null) as never,
+    sim_subscription_id: input.sim_subscription_id ?? null,
+    sim_slot: input.sim_slot ?? null,
+    sim_label: input.sim_label ?? null,
     install_id: input.install_id,
     paired_at: new Date().toISOString(),
     last_heartbeat_at: new Date().toISOString(),

@@ -23,7 +23,15 @@ export interface SmsGatewayPlugin {
   checkPermissions(): Promise<{ sms: SmsPermissionState; notifications?: SmsPermissionState }>;
   requestPermissions(): Promise<{ sms: SmsPermissionState; notifications?: SmsPermissionState }>;
   getDeviceInfo(): Promise<DeviceInfoResult>;
-  sendSms(options: { messageId: string; recipient: string; body: string }): Promise<{
+  listSims(): Promise<{
+    permission: "granted" | "denied";
+    sims: Array<{ subscriptionId: number; slot: number; carrier: string; label: string; number: string | null }>;
+    selectedSubscriptionId: number;
+  }>;
+  selectSim(options: { subscriptionId: number; slot?: number; label?: string }): Promise<{
+    selectedSubscriptionId: number;
+  }>;
+  sendSms(options: { messageId: string; recipient: string; body: string; subscriptionId?: number }): Promise<{
     messageId: string;
     status: "sent" | "failed";
     errorCode?: string;

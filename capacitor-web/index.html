@@ -121,6 +121,11 @@
           <p class="hint hidden" id="permDenied">
             Permission permanently denied. Android Settings → Apps → SMS Gatekeeper → Permissions में SMS और Notifications allow करें।
           </p>
+          <div id="simBox" class="hidden">
+            <label for="simSelect">SIM to send from</label>
+            <select id="simSelect"></select>
+            <p class="hint" id="simHint"></p>
+          </div>
           <button id="registerBtn">Register this phone as gateway</button>
           <div class="row">
             <span class="hint">Gateway service</span><span class="badge" id="runBadge">stopped</span>
@@ -477,7 +482,70 @@
             " · " + state.info.network;
         } catch (e) { el("info").textContent = "Could not read device info."; }
         try { state.running = (await p.getGatewayState()).running; } catch (e) {}
+        await loadSims();
         renderPermission(); renderRunning();
+      }
+
+      /* ---------------- dual SIM ---------------- */
+      var SIM_KEY = "gk_sim";
+      async function loadSims() {
+        var p = plugin();
+        if (!p || !p.listSims) { show("simBox", false); return; }
+        try {
+          var result = await p.listSims();
+          state.sims = result.sims || [];
+          var stored = parseInt(localStorage.getItem(SIM_KEY) || "", 10);
+          var selected = result.selectedSubscriptionId;
+          if (!(selected >= 0)) selected = stored >= 0 ? stored : (state.sims[0] ? state.sims[0].subscriptionId : -1);
+          state.simPermission = result.permission;
+          renderSims(selected);
+          if (selected >= 0) await applySim(selected, false);
+        } catch (e) { show("simBox", false); }
+      }
+      function simByIdent(id) {
+        for (var i = 0; i < (state.sims || []).length; i++) {
+          if (state.sims[i].subscriptionId === id) return state.sims[i];
+        }
+        return null;
+      }
+      function renderSims(selected) {
+        var box = el("simSelect");
+        box.innerHTML = "";
+        show("simBox", true);
+        if (state.simPermission !== "granted") {
+          el("simHint").textContent = "SIM list पढ़ने के लिए phone permission चाहिए — ऊपर का permission button दबाएँ।";
+        } else if (!(state.sims || []).length) {
+          el("simHint").textContent = "कोई active SIM नहीं मिला; default SIM use होगा।";
+        } else if (state.sims.length === 1) {
+          el("simHint").textContent = "एक ही SIM लगा है, यही use होगा।";
+        } else {
+          el("simHint").textContent = "दो SIM हैं — जिस SIM से message भेजना है वो चुनें।";
+        }
+        (state.sims || []).forEach(function (sim) {
+          var option = document.createElement("option");
+          option.value = String(sim.subscriptionId);
+          option.textContent = "SIM " + ((sim.slot != null ? sim.slot : 0) + 1) + " · " + (sim.carrier || sim.label || "SIM") +
+            (sim.number ? " · " + sim.number : "");
+          if (sim.subscriptionId === selected) option.selected = true;
+          box.appendChild(option);
+        });
+        state.sim = simByIdent(selected);
+      }
+      async function applySim(subscriptionId, notify) {
+        var p = plugin();
+        var sim = simByIdent(subscriptionId);
+        state.sim = sim;
+        localStorage.setItem(SIM_KEY, String(subscriptionId));
+        try {
+          if (p && p.selectSim) {
+            await p.selectSim({
+              subscriptionId: subscriptionId,
+              slot: sim && sim.slot != null ? sim.slot : 0,
+              label: sim ? (sim.carrier || sim.label || "SIM") : "SIM"
+            });
+          }
+          if (notify) toast("SIM " + (((sim && sim.slot) || 0) + 1) + " चुना गया।");
+        } catch (e) { if (notify) toast("SIM select नहीं हो पाया।"); }
       }
 
       async function init() {
@@ -562,8 +630,16 @@
         } catch (e) { toast("Permission request failed."); }
       });
 
+      el("simSelect").addEventListener("change", async function (e) {
+        var id = parseInt(e.target.value, 10);
+        if (!(id >= 0)) return;
+        await applySim(id, true);
+        if (state.device) toast("SIM बदल गया — नया SIM save करने के लिए फिर register करें।");
+      });
+
       el("registerBtn").addEventListener("click", async function () {
         var info = state.info || {};
+        var sim = state.sim || null;
         el("registerBtn").disabled = true;
         try {
           var payload = await api("/api/public/v1/app/register-device", {
@@ -572,7 +648,19 @@
             android_version: info.androidVersion || "unknown",
             app_version: info.appVersion || "web",
             sms_permission: state.permission,
-            sim_info: { model: info.model || null, sim_ready: !!info.simReady, network: info.network || null }
+            sender_number: (sim && sim.number) || undefined,
+            sim_subscription_id: sim ? sim.subscriptionId : undefined,
+            sim_slot: sim && sim.slot != null ? sim.slot : undefined,
+            sim_label: sim ? (sim.carrier || sim.label || "SIM") : undefined,
+            sim_info: {
+              model: info.model || null,
+              sim_ready: !!info.simReady,
+              network: info.network || null,
+              sims: (state.sims || []).map(function (s2) {
+                return { slot: s2.slot, carrier: s2.carrier, subscription_id: s2.subscriptionId };
+              }),
+              selected_subscription_id: sim ? sim.subscriptionId : null
+            }
           });
           state.device = { gateway_device_id: payload.gateway_device_id, device_token: payload.device_token };
           localStorage.setItem(DEVICE_KEY, JSON.stringify(state.device));
@@ -646,7 +734,10 @@
         el("sendTest").disabled = true;
         logLine("direct → " + to);
         try {
-          var result = await p.sendSms({ messageId: "test_" + Date.now().toString(36), recipient: to, body: body });
+          var result = await p.sendSms({
+            messageId: "test_" + Date.now().toString(36), recipient: to, body: body,
+            subscriptionId: state.sim ? state.sim.subscriptionId : undefined
+          });
           if (result.status === "sent") { logLine("SENT ✅ " + result.messageId); toast("Test SMS handed to the SIM."); }
           else { logLine("FAILED ✖ " + (result.errorCode || "") + " " + (result.errorMessage || "")); toast("Send failed."); }
         } catch (e) { logLine("ERROR ✖ " + (e.message || "send failed")); toast("Send failed."); }

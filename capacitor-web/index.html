@@ -67,6 +67,38 @@
       .log div, .list div { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
       .keycard { background: #0a1120; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
       .keycard .row span:first-child { font-size: 13px; color: var(--fg); }
+      .sim-picker {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        width: 100%; padding: 12px 13px; background: #0a1120; color: var(--fg);
+        border: 1px solid var(--border); text-align: left;
+      }
+      .sim-picker span { display: grid; gap: 2px; }
+      .sim-picker small { color: var(--muted); font-size: 11px; font-weight: 500; }
+      .sim-picker svg { width: 18px; flex: 0 0 auto; color: var(--muted); }
+      .sim-modal {
+        position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end;
+        padding: 16px; background: rgba(0, 0, 0, .68);
+      }
+      .sim-sheet {
+        width: 100%; max-width: 480px; margin: 0 auto; padding: 18px;
+        border: 1px solid var(--border); border-radius: 16px; background: var(--panel);
+        display: grid; gap: 12px;
+      }
+      .sim-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .sim-sheet-head strong { font-size: 17px; }
+      .sim-sheet-head button { width: 38px; height: 38px; padding: 0; background: #16233a; color: var(--fg); font-size: 22px; }
+      .sim-options { display: grid; gap: 9px; }
+      .sim-option {
+        display: grid; grid-template-columns: 42px 1fr 22px; align-items: center; gap: 11px;
+        width: 100%; padding: 12px; color: var(--fg); text-align: left;
+        background: #0a1120; border: 1px solid var(--border);
+      }
+      .sim-option.selected { border-color: var(--accent); background: #0c2019; }
+      .sim-number { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 9px; background: #16233a; color: var(--accent); }
+      .sim-copy { display: grid; gap: 1px; }
+      .sim-copy strong { font-size: 14px; }
+      .sim-copy small { color: var(--muted); font-size: 11px; font-weight: 500; }
+      .sim-check { color: var(--accent); font-size: 18px; text-align: center; }
     </style>
   </head>
   <body>
@@ -122,8 +154,11 @@
             Permission permanently denied. Android Settings → Apps → SMS Gatekeeper → Permissions में SMS और Notifications allow करें।
           </p>
           <div id="simBox" class="hidden">
-            <label for="simSelect">SIM to send from</label>
-            <select id="simSelect"></select>
+            <label>SIM to send from</label>
+            <button type="button" class="sim-picker" id="simPicker" aria-haspopup="dialog">
+              <span><strong id="simPickerTitle">Choose a SIM</strong><small id="simPickerMeta">Tap to select SIM 1 or SIM 2</small></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
             <p class="hint" id="simHint"></p>
           </div>
           <button id="registerBtn">Register this phone as gateway</button>
@@ -234,6 +269,17 @@
     </div>
 
     <div id="toast"></div>
+
+    <div id="simModal" class="sim-modal hidden" role="dialog" aria-modal="true" aria-labelledby="simModalTitle">
+      <div class="sim-sheet">
+        <div class="sim-sheet-head">
+          <strong id="simModalTitle">Select SIM for sending</strong>
+          <button type="button" id="closeSimModal" aria-label="Close">×</button>
+        </div>
+        <p class="hint">All SMS messages will be sent using the selected SIM.</p>
+        <div id="simOptions" class="sim-options"></div>
+      </div>
+    </div>
 
     <script>
       var DEVICE_KEY = "gatekeeper.device";
@@ -509,27 +555,39 @@
         return null;
       }
       function renderSims(selected) {
-        var box = el("simSelect");
-        box.innerHTML = "";
+        var options = el("simOptions");
+        options.innerHTML = "";
         show("simBox", true);
         if (state.simPermission !== "granted") {
           el("simHint").textContent = "SIM list पढ़ने के लिए phone permission चाहिए — ऊपर का permission button दबाएँ।";
+          el("simPickerTitle").textContent = "Phone permission needed";
+          el("simPickerMeta").textContent = "Grant permission to see SIM 1 and SIM 2";
         } else if (!(state.sims || []).length) {
           el("simHint").textContent = "कोई active SIM नहीं मिला; default SIM use होगा।";
+          el("simPickerTitle").textContent = "No active SIM found";
+          el("simPickerMeta").textContent = "Check your phone SIM settings";
         } else if (state.sims.length === 1) {
           el("simHint").textContent = "एक ही SIM लगा है, यही use होगा।";
         } else {
           el("simHint").textContent = "दो SIM हैं — जिस SIM से message भेजना है वो चुनें।";
         }
         (state.sims || []).forEach(function (sim) {
-          var option = document.createElement("option");
-          option.value = String(sim.subscriptionId);
-          option.textContent = "SIM " + ((sim.slot != null ? sim.slot : 0) + 1) + " · " + (sim.carrier || sim.label || "SIM") +
-            (sim.number ? " · " + sim.number : "");
-          if (sim.subscriptionId === selected) option.selected = true;
-          box.appendChild(option);
+          var slot = (sim.slot != null ? sim.slot : 0) + 1;
+          var option = document.createElement("button");
+          option.type = "button";
+          option.className = "sim-option" + (sim.subscriptionId === selected ? " selected" : "");
+          option.setAttribute("data-sim-id", String(sim.subscriptionId));
+          option.innerHTML = '<span class="sim-number">' + slot + '</span><span class="sim-copy"><strong>SIM ' + slot + ' · ' +
+            escapeHtml(sim.carrier || sim.label || "SIM") + '</strong><small>' + escapeHtml(sim.number || "Number unavailable") +
+            '</small></span><span class="sim-check">' + (sim.subscriptionId === selected ? "✓" : "") + '</span>';
+          options.appendChild(option);
         });
         state.sim = simByIdent(selected);
+        if (state.sim) {
+          var selectedSlot = (state.sim.slot != null ? state.sim.slot : 0) + 1;
+          el("simPickerTitle").textContent = "SIM " + selectedSlot + " · " + (state.sim.carrier || state.sim.label || "SIM");
+          el("simPickerMeta").textContent = state.sim.number || "Selected for all outgoing SMS";
+        }
       }
       async function applySim(subscriptionId, notify) {
         var p = plugin();
@@ -630,10 +688,25 @@
         } catch (e) { toast("Permission request failed."); }
       });
 
-      el("simSelect").addEventListener("change", async function (e) {
-        var id = parseInt(e.target.value, 10);
+      el("simPicker").addEventListener("click", function () {
+        if (state.simPermission !== "granted" || !(state.sims || []).length) {
+          toast("पहले phone permission allow करें।");
+          return;
+        }
+        show("simModal", true);
+      });
+      el("closeSimModal").addEventListener("click", function () { show("simModal", false); });
+      el("simModal").addEventListener("click", function (e) {
+        if (e.target === el("simModal")) show("simModal", false);
+      });
+      el("simOptions").addEventListener("click", async function (e) {
+        var option = e.target.closest("[data-sim-id]");
+        if (!option) return;
+        var id = parseInt(option.getAttribute("data-sim-id"), 10);
         if (!(id >= 0)) return;
         await applySim(id, true);
+        renderSims(id);
+        show("simModal", false);
         if (state.device) toast("SIM बदल गया — नया SIM save करने के लिए फिर register करें।");
       });
 

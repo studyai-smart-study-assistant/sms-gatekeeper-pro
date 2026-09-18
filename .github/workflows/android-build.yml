@@ -35,7 +35,10 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - uses: android-actions/setup-android@v3
+      # ubuntu-latest runners ship a preinstalled Android SDK with licenses
+      # accepted; android-actions/setup-android breaks on cmdline-tools 16.0
+      # ("Failed to find package 'tools'"), so we rely on the preinstalled SDK.
+
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
